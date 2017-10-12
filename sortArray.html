@@ -1,0 +1,168 @@
+<html>
+<head>
+	<title>Игра - sortArray</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		.bloc {
+			display: none;
+			position: absolute;
+			margin: 10px 5px;
+			width: 50px; /* const BLOCK_WIDTH*/
+			height: 36px;
+			border-radius: 50%;
+			background-color: #00a;
+			color: white;
+			font-weight: bold;
+			font-size: 1.3em;
+			padding-top: 14px;
+			cursor: pointer;
+		}
+		.bloc:hover {
+			box-shadow: 0 0 5px 3px gray;
+		}
+		.container {
+			text-align: center;
+		}
+		.startBtn {
+			width: 150px;
+			padding: 10px 30px;
+			background-color: white;
+			color: #00a;
+			border: 3px solid #00a;
+			text-align: center;
+			margin: 10px auto;
+			font-size: 1.5em;
+			font-family: Helvetica;
+			cursor: pointer;
+		}
+		.startBtn:hover {
+			box-shadow: 0 0 10px rgba(0,0,0,0.5);
+		}   
+		.outResult {
+			text-align: center;
+			font-size: 2em;
+		}
+		.outResult span {
+			font-size: 2em;
+			color: red;
+			border: 2px solid red;
+			margin-top: 30px;
+			padding: 5px 30px;
+		}
+		.container {
+			width: 500px; /* const GAME_PLACE_WIDTH*/
+			height: 500px;
+			background-color: rgba(40,70,250,0.2);
+			position: relative;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<!-- ====================================================================== -->
+<body>
+<div class="container">
+	<div class="bloc" id="div01" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div02" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div03" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div04" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div05" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div06" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div07" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div08" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div09" onclick="getContent(this.id)"></div>
+	<div class="bloc" id="div10" onclick="getContent(this.id)"></div>
+</div>
+<div  id = "strBtn" class="startBtn" onclick="startGame()">Пуск</div>
+<p class="outResult" id="outRes"></p>
+
+<!-- ========================== -->
+
+<script> //игра до первой ошибки
+	const GAME_PLACE_WIDTH = 500;
+	const BLOCK_WIDTH = 60;
+	const TIMER_VALUE = 14000;
+	var dAr = [1,2,3,4,5,6,7,8,9,10]; // digitArray - массив последовательных чисел
+	var blocContent; // накапливает кликнутые числа
+	var clickCount; // допустимое количество кликов
+	var sum = 0; // подсчет баллов - 10 баллов за правильную последовательность целиком
+	var timerID; // id таймера для одного прохода игры
+
+	function startGame(){
+		var i;
+		// прячем кнопку старта игры
+		document.getElementById("strBtn").style.display = "none";
+		// обнуляем сумму накопленных баллов
+		sum = 0;
+		// запускаем игровой цикл
+		printDigit();
+	}
+	function printDigit(){
+		var arColor = ["red","darkviolet","deeppink","magenta","brown","maroon","darkturquoise","darkcyan","teal","navy"];
+		var i, iColor;
+		var x, y;	
+
+		// устанавливаем таймер
+		timerID = setTimeout("endGame()", TIMER_VALUE );		
+		// Обнуляем накопленную строку
+		blocContent = "";
+		clickCount = dAr.length;
+
+		//публикуем блоки
+		iColor = Math.floor(Math.random() * 10);
+		for (i = 0; i < dAr.length; i++){	
+			// устанавливаем новый цвет для блоков
+			document.getElementsByClassName("bloc")[i].style.backgroundColor  = arColor[iColor];
+			// перемешиваем блоки
+			x = Math.floor(Math.random()*(GAME_PLACE_WIDTH - BLOCK_WIDTH));
+			y = Math.floor(GAME_PLACE_WIDTH/11*i);
+			document.getElementsByClassName("bloc")[i].style.left = x + "px";
+			document.getElementsByClassName("bloc")[i].style.top = y + "px";
+			// выводим блоки на экран
+			document.getElementsByClassName("bloc")[i].style.display = "block";
+		}
+
+		// переставляем цифры в массиве и публикуем их в блоках
+		document.getElementById("outRes").innerHTML = blocContent;
+		dAr.sort(function(a,b){return 0.5 - Math.random()});
+		document.getElementById("div01").innerHTML = dAr[0];
+		document.getElementById("div02").innerHTML = dAr[1];
+		document.getElementById("div03").innerHTML = dAr[2];
+		document.getElementById("div04").innerHTML = dAr[3];
+		document.getElementById("div05").innerHTML = dAr[4];
+		document.getElementById("div06").innerHTML = dAr[5];
+		document.getElementById("div07").innerHTML = dAr[6];
+		document.getElementById("div08").innerHTML = dAr[7];
+		document.getElementById("div09").innerHTML = dAr[8];
+		document.getElementById("div10").innerHTML = dAr[9];
+	}
+
+	function getContent(sampleId) {
+		// получаем содержимое кликнутого блока, уменьшаем число кликов
+		if (clickCount > 0) {
+			blocContent +=  document.getElementById(sampleId).textContent;
+			//console.log(blocContent );
+			clickCount--;
+		}
+		// когда кликнули все блоки, для правильных последовательностей отменяем таймер, начисляем баллы и продолжаем игру
+		if (clickCount === 0) { 
+			if (blocContent == "12345678910"){
+				clearTimeout(timerID);
+				sum += 10; 
+				printDigit();
+			} else {
+				endGame();
+			}
+		} 
+	}
+	// Функция окончания игры по истечении времени
+	function endGame(){
+		document.getElementById("outRes").innerHTML = "Игра окончена! <br> Ваши результаты: <span>" + sum + "</span>"; 
+		document.getElementById("strBtn").style.display = "block";
+		for (i = 0; i < dAr.length; i++){
+			document.getElementsByClassName("bloc")[i].style.display = "none";
+		}
+	}
+
+</script>
+</body>
+</html>
